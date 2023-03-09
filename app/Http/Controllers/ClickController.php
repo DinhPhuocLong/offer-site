@@ -19,6 +19,7 @@ class ClickController extends Controller
     }
     public function create(Request $request) {
         $ip = $request->ip();
+        $agent = new Agent();
         $offerId = $request->query('offer');
         $pubId = $request->query('pub');
         if(!$pubId) {
@@ -51,9 +52,9 @@ class ClickController extends Controller
             'ip' => $ip,
             'offer_id' => $offerId,
             'user_id' => $pub->id,
-            'country' => 'Vietnam',
-            'browser' => 'Chrome',
-            'os' => 'window10',
+            'country' => $country,
+            'browser' => $agent->browser(),
+            'os' => $agent->platform(),
             'uuid' => Uuid::uuid4()->toString()
         ]);
 
