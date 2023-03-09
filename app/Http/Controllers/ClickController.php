@@ -61,7 +61,7 @@ class ClickController extends Controller
             'ip' => $ip,
             'offer_id' => $offerId,
             'user_id' => $pub->id,
-            'country' => 'test',
+            'country' => $country,
             'browser' => $agent->browser(),
             'os' => $platformAndVersion,
             'user_agent' => $rawUserAgent,
