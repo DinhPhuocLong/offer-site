@@ -22,7 +22,7 @@ class CreateTestOffer extends Seeder
             'offer_link' => 'https://google.com/',
             'country_allowed' => 'VN, DE, GB',
             'offer_payout' => 1,
-            'is_hidden' => 1
+            'is_hidden' => 0
         ]);
     }
 }

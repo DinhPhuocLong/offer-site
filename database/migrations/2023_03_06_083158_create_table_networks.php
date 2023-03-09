@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('payout');
             $table->tinyInteger('is_unique_lead')->default(1);
             $table->tinyInteger('is_unique_click')->default(1);
-            $table->tinyInteger('is_hidden')->default(1);
+            $table->tinyInteger('is_hidden')->default(0);
             $table->timestamps();
         });
     }

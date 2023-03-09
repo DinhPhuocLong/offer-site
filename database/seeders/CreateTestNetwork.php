@@ -21,7 +21,7 @@ class CreateTestNetwork extends Seeder
             'payout' => '{sum}',
             'is_unique_lead' => 1,
             'is_unique_click' => 1,
-            'is_hidden' => 1,
+            'is_hidden' => 0
         ]);
     }
 }

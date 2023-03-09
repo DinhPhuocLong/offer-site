@@ -23,7 +23,7 @@ class ClickController extends Controller
         $offerId = $request->query('offer');
         $pubId = $request->query('pub');
         if(!$pubId) {
-            $pubId = 0;
+            $pubId = 1;
         }
         $pub = User::find($pubId);
         $offer = Offer::find($offerId);
@@ -35,7 +35,13 @@ class ClickController extends Controller
         // check click unique if network click is unique
         if ($network->is_unique_click) {
             if($this->checkUniqueClickIp($offerId, $ip)) {
-                return "Error, This click IP is already exsit";
+                return "Error, This click IP is already exist";
+            }
+        }
+        //check lead unique if network lead is unique
+        if ($network->is_unique_lead) {
+            if($this->checkUniqueConversionIp($offerId, $ip)) {
+                return "Error, This IP is already converted";
             }
         }
 
@@ -48,13 +54,17 @@ class ClickController extends Controller
         }
 
         //store click to database and get uuid to attach to url
+        $platform = $agent->platform();
+        $platformAndVersion = $platform."-{$agent->version($platform)}";
+        $rawUserAgent = $agent->getUserAgent();
         $clickId = Click::create([
             'ip' => $ip,
             'offer_id' => $offerId,
             'user_id' => $pub->id,
-            'country' => $country,
+            'country' => 'test',
             'browser' => $agent->browser(),
-            'os' => $agent->platform(),
+            'os' => $platformAndVersion,
+            'user_agent' => $rawUserAgent,
             'uuid' => Uuid::uuid4()->toString()
         ]);
 
@@ -100,7 +110,15 @@ class ClickController extends Controller
         $clickOfCurrentOffer = Click::where('offer_id', $offerId)->get();
         $isRecordedIp =  $clickOfCurrentOffer->where('ip', $ip)->first();
         if ($isRecordedIp) {
-            return "This click ip is duplicated";
+            return True;
+        }
+    }
+
+    public function checkUniqueConversionIp($offerId, $ip) {
+        $clickConvertedOfCurrentOffer = Click::where('offer_id', $offerId)->where('is_converted', 1)->get();
+        $isRecordedIp = $clickConvertedOfCurrentOffer->where('ip', $ip)->first();
+        if($isRecordedIp) {
+            return True;
         }
     }
 

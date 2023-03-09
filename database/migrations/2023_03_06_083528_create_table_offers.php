@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('offer_link');
             $table->string('country_allowed')->default('all');
             $table->decimal('offer_payout', 5, 2)->default(1);
-            $table->tinyInteger('is_hidden')->default(1);
+            $table->tinyInteger('is_hidden')->default(0);
             $table->timestamps();
         });
     }
