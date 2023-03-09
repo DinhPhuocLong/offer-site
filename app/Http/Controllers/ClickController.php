@@ -18,32 +18,49 @@ class ClickController extends Controller
         return response()->json(['data' => $data]);
     }
     public function create(Request $request) {
+        $ip = $request->ip();
         $offerId = $request->query('offer');
-        $pubId = 0;
-        if($request->query('pub')) {
-            $pubId = $request->query('pub');
+        $pubId = $request->query('pub');
+        if(!$pubId) {
+            $pubId = 0;
         }
         $pub = User::find($pubId);
         $offer = Offer::find($offerId);
+        if(!$offer) {
+            return "Invalid offer";
+        }
         $network = Network::find($offer->network_id);
-        $ip = $request->ip();
+
+        // check click unique if network click is unique
+        if ($network->is_unique_click) {
+            if($this->checkUniqueClickIp($offerId, $ip)) {
+                return "Error, This click IP is already exsit";
+            }
+        }
+
+        // check if user country is allowed
         $country = $this->getClientCountry($ip);
         $country = $this->formatCountryName($country);
         $allowed_country = $this->getListAllowedCountry($offer->country_allowed);
         if (!in_array($country, $allowed_country)) {
             return "Failed, this offer is not working with {$country}";
         }
-        return $network;
+
+        //store click to database and get uuid to attach to url
         $clickId = Click::create([
             'ip' => $ip,
             'offer_id' => $offerId,
-            'user_id' => $pubId,
+            'user_id' => $pub->id,
             'country' => 'Vietnam',
             'browser' => 'Chrome',
             'os' => 'window10',
             'uuid' => Uuid::uuid4()->toString()
         ]);
-        return $clickId->uuid;
+
+        // get rid of parameter bracket and then redirect to offer link with parameter
+        $aff_sub = trim($network->aff_sub, '{}, []');
+        $redirectLink = $offer->offer_link."?{$aff_sub}={$clickId->uuid}";
+        return redirect($redirectLink);
     }
     public function getClientCountry($ip) {
         if ($position = Location::get($ip)) {
@@ -51,7 +68,7 @@ class ClickController extends Controller
             return $position->countryName;
         } else {
             // Failed to read ip's location
-            return false;
+            return "Failed to read ip location";
         }
     }
     public function formatCountryName($country) {
@@ -59,9 +76,15 @@ class ClickController extends Controller
             'Vietnam' => 'VN',
             'United States of America' => 'USA',
             'United Kingdom' => 'UK',
-            // ...
         );
-        return $abbreviation = array_search($country, $countries);
+        if (!strlen(trim($country))) {
+            return "False";
+        }
+        if (array_key_exists($country, $countries)) {
+            return $countries[$country];
+        } else {
+            return "False"; // or any default value you prefer
+        }
     }
 
     public function getListAllowedCountry($list) {
@@ -72,4 +95,12 @@ class ClickController extends Controller
         }
         return $allowed_country;
     }
+    public function checkUniqueClickIp($offerId, $ip) {
+        $clickOfCurrentOffer = Click::where('offer_id', $offerId)->get();
+        $isRecordedIp =  $clickOfCurrentOffer->where('ip', $ip)->first();
+        if ($isRecordedIp) {
+            return "This click ip is duplicated";
+        }
+    }
+
 }

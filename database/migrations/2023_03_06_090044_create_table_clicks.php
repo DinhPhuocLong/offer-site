@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreign('offer_id')->references('id')->on('offers')->onDelete('cascade');
             $table->string('uuid', 36);
             $table->string('country')->nullable();
+            $table->string('ip')->nullable();
             $table->string('os')->nullable();
             $table->string('browser')->nullable();
             $table->string('user_agent')->nullable();

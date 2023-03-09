@@ -15,5 +15,6 @@ class Click extends Model
         'browser',
         'user_id',
         'uuid',
+        'ip',
     ];
 }
