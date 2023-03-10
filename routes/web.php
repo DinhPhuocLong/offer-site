@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Click routes
 Route::get('/click', [ClickController::class, 'create']);
+
+
+// Link lead routes
+Route::get('/click/l', [ClickController::class, 'createLeadClick']);

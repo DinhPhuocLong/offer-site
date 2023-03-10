@@ -16,6 +16,7 @@ class Click extends Model
         'user_id',
         'uuid',
         'ip',
-        'user_agent'
+        'user_agent',
+        'is_click_lead'
     ];
 }

@@ -32,10 +32,53 @@ class ClickController extends Controller
         }
         $network = Network::find($offer->network_id);
 
+        // check if user country is allowed
+        $country = $this->getClientCountry($ip);
+        $country = $this->formatCountryName($country);
+        $allowed_country = $this->getListAllowedCountry($offer->country_allowed);
+        if (!in_array($country, $allowed_country)) {
+            return "Failed, this offer is not working with {$country}";
+        }
+
+        //store click to database and get uuid to attach to url
+        $platform = $agent->platform();
+        $platformAndVersion = $platform."-{$agent->version($platform)}";
+        $rawUserAgent = $agent->getUserAgent();
+        $clickId = Click::create([
+            'ip' => $ip,
+            'offer_id' => $offerId,
+            'user_id' => $pub->id,
+            'country' => $country,
+            'browser' => $agent->browser(),
+            'os' => $platformAndVersion,
+            'user_agent' => $rawUserAgent,
+            'uuid' => Uuid::uuid4()->toString()
+        ]);
+
+        // get rid of parameter bracket and then redirect to offer link with parameter
+        $aff_sub = trim($network->aff_sub, '{}, []');
+        $redirectLink = $offer->offer_link."?{$aff_sub}={$clickId->uuid}";
+        return redirect($redirectLink);
+    }
+    public function createLeadClick(Request $request) {
+        $ip = $request->ip();
+        $agent = new Agent();
+        $offerId = $request->query('offer');
+        $pubId = $request->query('pub');
+        if(!$pubId) {
+            $pubId = 1;
+        }
+        $pub = User::find($pubId);
+        $offer = Offer::find($offerId);
+        if(!$offer) {
+            return "Invalid offer";
+        }
+        $network = Network::find($offer->network_id);
+
         // check click unique if network click is unique
         if ($network->is_unique_click) {
             if($this->checkUniqueClickIp($offerId, $ip)) {
-                return "Error, This click IP is already exist";
+                return "Error, This click to lead IP is already exist";
             }
         }
         //check lead unique if network lead is unique
@@ -65,7 +108,8 @@ class ClickController extends Controller
             'browser' => $agent->browser(),
             'os' => $platformAndVersion,
             'user_agent' => $rawUserAgent,
-            'uuid' => Uuid::uuid4()->toString()
+            'uuid' => Uuid::uuid4()->toString(),
+            'is_click_lead' => 1
         ]);
 
         // get rid of parameter bracket and then redirect to offer link with parameter
@@ -73,6 +117,7 @@ class ClickController extends Controller
         $redirectLink = $offer->offer_link."?{$aff_sub}={$clickId->uuid}";
         return redirect($redirectLink);
     }
+
     public function getClientCountry($ip) {
         if ($position = Location::get($ip)) {
             // Successfully retrieved position.
@@ -82,6 +127,7 @@ class ClickController extends Controller
             return "Failed to read ip location";
         }
     }
+
     public function formatCountryName($country) {
         $countries = array(
             'Afghanistan' => 'AF',
@@ -220,19 +266,20 @@ class ClickController extends Controller
         return $allowed_country;
     }
     public function checkUniqueClickIp($offerId, $ip) {
-        $clickOfCurrentOffer = Click::where('offer_id', $offerId)->get();
-        $isRecordedIp =  $clickOfCurrentOffer->where('ip', $ip)->first();
-        if ($isRecordedIp) {
-            return True;
-        }
+        return Click::where([
+            ['offer_id', $offerId],
+            ['is_click_lead', 1],
+            ['ip', $ip]
+        ])->exists();
     }
 
     public function checkUniqueConversionIp($offerId, $ip) {
-        $clickConvertedOfCurrentOffer = Click::where('offer_id', $offerId)->where('is_converted', 1)->get();
-        $isRecordedIp = $clickConvertedOfCurrentOffer->where('ip', $ip)->first();
-        if($isRecordedIp) {
-            return True;
-        }
+        return Click::where([
+            ['offer_id', $offerId],
+            ['is_click_lead', 1],
+            ['is_converted', 1],
+            ['ip', $ip]
+        ])->exists();
     }
 
 }
