@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('os')->nullable();
             $table->string('browser')->nullable();
             $table->string('user_agent')->nullable();
+            $table->decimal('offer_payout', 5, 2)->nullable();
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->tinyInteger('is_click_lead')->default(0);

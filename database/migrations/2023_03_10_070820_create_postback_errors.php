@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('postback_errors', function (Blueprint $table) {
             $table->id();
-            $table->string('ip');
+            $table->string('sender_ip');
+            $table->string('cid');
+            $table->decimal('payout', 5, 2)->nullable();
             $table->timestamps();
         });
     }

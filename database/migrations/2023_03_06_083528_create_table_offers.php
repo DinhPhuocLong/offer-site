@@ -21,7 +21,7 @@ return new class extends Migration
             $table->tinyInteger('offer_type')->default(1); //1 = desktop, 0 = mobile
             $table->string('offer_link');
             $table->string('country_allowed')->default('all');
-            $table->decimal('offer_payout', 5, 2)->default(1);
+            $table->decimal('offer_payout', 5, 2)->nullable();
             $table->tinyInteger('is_hidden')->default(0);
             $table->timestamps();
         });

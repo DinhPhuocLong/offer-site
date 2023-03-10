@@ -20,3 +20,7 @@ Route::get('/click', [ClickController::class, 'create']);
 
 // Link lead routes
 Route::get('/click/l', [ClickController::class, 'createLeadClick']);
+
+
+// Receive Postback routes
+Route::get('/pb', [ClickController::class, 'createConversion']);

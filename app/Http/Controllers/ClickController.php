@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewNotify;
 use App\Models\Click;
 use App\Models\Network;
 use App\Models\Offer;
+use App\Models\PostbackError;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
 use Ramsey\Uuid\Uuid;
 use Stevebauman\Location\Facades\Location;
+use Illuminate\Support\Facades\Broadcast;
+
 
 class ClickController extends Controller
 {
@@ -116,6 +120,63 @@ class ClickController extends Controller
         $aff_sub = trim($network->aff_sub, '{}, []');
         $redirectLink = $offer->offer_link."?{$aff_sub}={$clickId->uuid}";
         return redirect($redirectLink);
+    }
+
+    public function createConversion(Request $request) {
+        $cid = $request->query('cid');
+        $payout = $request->query('payout');
+        if (!$payout) {
+            $payout = 1;
+        }
+
+        //check if there is cid parameter
+        if(!$cid) {
+            return response()->json([
+                'msg' => 'Invalid click id'
+            ], 400);
+        }
+
+        $clickId = Click::where([
+            ['is_click_lead', 1],
+            ['uuid', $cid]
+        ])->first();
+        // check again if click id exist in database
+        $ip = $request->ip();
+
+        //write to postback error if invalid
+        if (!$clickId) {
+            PostbackError::create([
+                'cid' => $cid,
+                'sender_ip' => $ip,
+                'payout' => $payout
+            ]);
+            return response()->json([
+                'msg' => 'Invalid click id'
+            ], 400);
+        }
+
+        // Check if offer has a default payout, if not then user payout from network
+        $revenue = Offer::find($clickId->offer_id)->offer_payout;
+        if (!$revenue) {
+            $revenue = $payout;
+        }
+        $result = $clickId->update([
+            'is_converted' => 1,
+            'offer_payout' => $revenue
+        ]);
+        if (!$result) {
+            return response()->json([
+                'msg' => 'Error'
+            ], 500);
+        }
+
+        //Broadcast to client
+
+        event(new NewNotify('hello world'));
+
+        return response()->json([
+            'msg' => 'Conversion created successfully'
+        ], 200);
     }
 
     public function getClientCountry($ip) {
@@ -245,7 +306,8 @@ class ClickController extends Controller
             'Russia' => 'RU',
             'New Zealand' => 'NZ',
             'Singapore' => 'SG',
-            'Netherlands' => 'NL'
+            'Netherlands' => 'NL',
+            'Vietnam' => 'VN',
         );
         if (!strlen(trim($country))) {
             return "False";
