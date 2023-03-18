@@ -172,7 +172,9 @@ class ClickController extends Controller
 
         //Broadcast to client
 
-        event(new NewNotify('hello world'));
+        event(new NewNotify([
+            'Click' => $clickId
+        ]));
 
         return response()->json([
             'msg' => 'Conversion created successfully'
