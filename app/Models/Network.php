@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AncientScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,4 +17,8 @@ class Network extends Model
         'is_unique_lead',
         'is_hidden'
     ];
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AncientScope);
+    }
 }

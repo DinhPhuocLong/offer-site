@@ -18,8 +18,8 @@ class Admin
     {
         if(auth()->user()->role !== 0) {
             return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+                'message' => 'You don\'t have permission to access this resource'
+            ], 403);
         }
         return $next($request);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Domain;
 use App\Models\Network;
 use Illuminate\Http\Request;
 
@@ -37,6 +38,18 @@ class NetworkController extends Controller
         if($network) {
             $network->delete();
             return response()->json(['msg' => 'successfully']);
+        }
+        return response()->json(['msg' => 'Failed, can not find such network'], 404);
+    }
+    public function showNetworkPostbackUrl(Request $request) {
+        $networkId = $request->query('id');
+        $network = Network::find($networkId);
+        $domains = Domain::where('is_hidden', false)->get();
+        if($network) {
+            $postbaclUrls = array_map(function ($item) use ($network) {
+                return $item['domain_url'] . '?cid=' . $network->aff_sub . '&payout=' . $network->payout;
+            }, $domains->toArray());
+            return response()->json($postbaclUrls);
         }
         return response()->json(['msg' => 'Failed, can not find such network'], 404);
     }

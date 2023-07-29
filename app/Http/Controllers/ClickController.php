@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Broadcast;
 class ClickController extends Controller
 {
     public function index() {
-        $data = Click::all();
+        $data = Click::clickBelongTo()->get();
         return response()->json(['data' => $data]);
     }
     public function create(Request $request) {

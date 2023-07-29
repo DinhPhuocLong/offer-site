@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Click extends Model
 {
@@ -21,4 +22,10 @@ class Click extends Model
         'is_converted',
         'offer_payout'
     ];
+    public function scopeClickBelongTo(Builder $query): void
+    {
+        if (auth()->user()->role !== 0) {
+            $query->where('user_id', auth()->user()->id);
+        }
+    }
 }

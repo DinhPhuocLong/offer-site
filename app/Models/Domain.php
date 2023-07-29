@@ -6,15 +6,13 @@ use App\Models\Scopes\AncientScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Offer extends Model
+class Domain extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name',
-        'offer_link',
-        'offer_payout',
-        'country_allowed',
-        'network_id',
+        'website_name',
+        'domain_url',
+        'logo',
         'is_hidden'
     ];
 
@@ -22,4 +20,5 @@ class Offer extends Model
     {
         static::addGlobalScope(new AncientScope);
     }
+
 }
