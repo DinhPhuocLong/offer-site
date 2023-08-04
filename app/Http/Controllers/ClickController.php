@@ -29,12 +29,12 @@ class ClickController extends Controller
         if(!$pubId) {
             $pubId = 1;
         }
-        $pub = User::find($pubId);
-        $offer = Offer::find($offerId);
+        $pub = User::withoutGlobalScopes()->find($pubId);
+        $offer = Offer::withoutGlobalScopes()->find($offerId);
         if(!$offer) {
             return "Invalid offer";
         }
-        $network = Network::find($offer->network_id);
+        $network = Network::withoutGlobalScopes()->find($offer->network_id);
 
         // check if user country is allowed
         $country = $this->getClientCountry($ip);
@@ -72,12 +72,12 @@ class ClickController extends Controller
         if(!$pubId) {
             $pubId = 1;
         }
-        $pub = User::find($pubId);
-        $offer = Offer::find($offerId);
+        $pub = User::withoutGlobalScopes()->find($pubId);
+        $offer = Offer::withoutGlobalScopes()->find($offerId);
         if(!$offer) {
             return "Invalid offer";
         }
-        $network = Network::find($offer->network_id);
+        $network = Network::withoutGlobalScopes()->find($offer->network_id);
 
         // check click unique if network click is unique
         if ($network->is_unique_click) {
@@ -156,7 +156,7 @@ class ClickController extends Controller
         }
 
         // Check if offer has a default payout, if not then user payout from network
-        $revenue = Offer::find($clickId->offer_id)->offer_payout;
+        $revenue = Offer::withoutGlobalScopes()->find($clickId->offer_id)->offer_payout;
         if (!$revenue) {
             $revenue = $payout;
         }
@@ -181,9 +181,13 @@ class ClickController extends Controller
         ], 200);
     }
 
+    public function getConversions() {
+
+    }
+
     public function getClientCountry($ip) {
         if ($position = Location::get($ip)) {
-            // Successfully retrieved position.
+            // Successfully retrieved location.
             return $position->countryName;
         } else {
             // Failed to read ip's location

@@ -15,10 +15,12 @@ class AncientScope implements Scope
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
+
     public function apply(Builder $builder, Model $model):void
     {
         if(auth()->user()->role !==0 ){
             $builder->where('is_hidden', 0);
         }
     }
+
 }

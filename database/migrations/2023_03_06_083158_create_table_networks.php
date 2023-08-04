@@ -21,6 +21,7 @@ return new class extends Migration
             $table->tinyInteger('is_unique_lead')->default(1);
             $table->tinyInteger('is_unique_click')->default(1);
             $table->tinyInteger('is_hidden')->default(0);
+            $table->tinyInteger('is_daily_click_reset')->default(0);
             $table->timestamps();
         });
     }

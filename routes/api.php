@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 });
 
 // Network routes
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/network', [NetworkController::class, 'index']);
     Route::post('/network', [NetworkController::class, 'create'])->middleware('admin');
     Route::put('/network', [NetworkController::class, 'hide'])->middleware('admin');
@@ -41,7 +41,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 // Offer routes
 
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => 'auth:api', 'cors'], function () {
     Route::get('/offer', [OfferController::class, 'index']);
     Route::group(['middleware' => 'admin'], function () {
         Route::post('/offer', [OfferController::class, 'create'])->middleware('admin');
