@@ -16,9 +16,10 @@ class CreateTestOffer extends Seeder
     public function run()
     {
         DB::table('offers')->insert([
-            'name' => 'Test offer',
+            'offer_name' => 'Test offer',
             'network_id' => 1,
             'offer_type' => 1,
+            'offer_domain' => 1,
             'offer_link' => 'https://google.com/',
             'country_allowed' => 'VN, DE, GB',
             'offer_payout' => 1,

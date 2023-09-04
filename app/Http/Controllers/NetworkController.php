@@ -10,6 +10,7 @@ class NetworkController extends Controller
 {
     public function index()
     {
+//        return response()->json(['data' => config('constants.OFFER_TYPE_OFFER') ]);
         $data = Network::all();
         return response()->json(['data' => $data]);
     }
@@ -20,15 +21,30 @@ class NetworkController extends Controller
             'payout' => 'required|max:20',
             'is_unique_click' => 'nullable',
             'is_unique_lead' => 'nullable',
-            'is_hidden' => 'nullable'
+            'is_hidden' => 'nullable',
+            'is_daily_click_reset' => 'nullable'
         ]);
         $data = Network::create($validated);
         return response($data);
     }
-    public function hide(Request $request) {
-        $network = Network::find($request->id);
+
+    public function update(Request $request) {
+        $network = Network::find($request->query('id'));
+        $request->validate([
+            'name' => 'required|string',
+            'aff_sub' => 'required|string',
+            'payout' => 'string',
+        ]);
         if($network) {
-            $network->update(['is_hidden' => 1]);
+            $network->update([
+                'name' => $request->name,
+                'aff_sub' => $request->aff_sub,
+                'payout' => $request->payout,
+                'is_unique_click' => $request->is_unique_click,
+                'is_unique_lead' => $request->is_unique_lead,
+                'is_hidden' => $request->is_hidden,
+                'is_daily_click_reset' => $request->is_daily_click_reset
+            ]);
             return response()->json(['msg' => 'successfully']);
         }
         return response()->json(['msg' => 'Failed, can not find such network'], 404);
@@ -37,7 +53,7 @@ class NetworkController extends Controller
         $network = Network::find($request->id);
         if($network) {
             $network->delete();
-            return response()->json(['msg' => 'successfully']);
+            return response()->json(['msg' => 'successfully'], 204);
         }
         return response()->json(['msg' => 'Failed, can not find such network'], 404);
     }

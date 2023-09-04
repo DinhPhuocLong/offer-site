@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClickController;
+use App\Http\Controllers\DomainController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\UserController;
@@ -34,7 +35,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/network', [NetworkController::class, 'index']);
     Route::post('/network', [NetworkController::class, 'create'])->middleware('admin');
-    Route::put('/network', [NetworkController::class, 'hide'])->middleware('admin');
+    Route::put('/network', [NetworkController::class, 'update'])->middleware('admin');
     Route::delete('/network', [NetworkController::class, 'delete'])->middleware('admin');
     Route::get('/network/pb', [NetworkController::class, 'showNetworkPostbackUrl']);
 });
@@ -44,8 +45,10 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::group(['middleware' => 'auth:api', 'cors'], function () {
     Route::get('/offer', [OfferController::class, 'index']);
     Route::group(['middleware' => 'admin'], function () {
+        Route::get('/offer/{id}', [OfferController::class, 'show'])->middleware('admin');
         Route::post('/offer', [OfferController::class, 'create'])->middleware('admin');
-        Route::put('/offer', [OfferController::class, 'hide'])->middleware('admin');
+        Route::patch('/offer', [OfferController::class, 'hide'])->middleware('admin');
+        Route::put('/offer/{id}', [OfferController::class, 'update'])->middleware('admin');
         Route::delete('/offer', [OfferController::class, 'delete'])->middleware('admin');
     });
 });
@@ -55,6 +58,12 @@ Route::group(['middleware' => 'auth:api', 'cors'], function () {
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/click', [ClickController::class, 'index']);
+});
+
+
+// Domain routes
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::get('/domain', [DomainController::class, 'index']);
 });
 
 

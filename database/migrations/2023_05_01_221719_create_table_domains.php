@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('domains', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('website_name', 255);
             $table->string('domain_url', 255);
             $table->string('logo')->nullable();

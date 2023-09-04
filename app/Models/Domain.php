@@ -20,5 +20,7 @@ class Domain extends Model
     {
         static::addGlobalScope(new AncientScope);
     }
-
+    public function offers() {
+        return $this->hasMany(Offer::class, 'offer_domain');
+    }
 }

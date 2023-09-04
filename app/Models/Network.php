@@ -15,10 +15,16 @@ class Network extends Model
         'payout',
         'is_unique_click',
         'is_unique_lead',
-        'is_hidden'
+        'is_hidden',
+        'is_daily_click_reset'
     ];
     protected static function booted(): void
     {
         static::addGlobalScope(new AncientScope);
+    }
+
+    public function offers()
+    {
+        return $this->hasMany(Offer::class, 'network_id');
     }
 }

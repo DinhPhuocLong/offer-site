@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('postback_errors', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('sender_ip');
             $table->string('cid');
             $table->decimal('payout', 7, 2)->nullable();
